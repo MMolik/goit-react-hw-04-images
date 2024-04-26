@@ -20,36 +20,36 @@ const App = () => {
   const [loadMore, setLoadMore] = useState(false); // Dodanie stanu dla loadMore
 
   useEffect(() => {
-    fetchData();
-  }, [page, query]);
+    const fetchData = async () => {
+      setLoading(true);
 
-  const fetchData = async () => {
-    setLoading(true);
+      try {
+        const response = await fetch(
+          `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
+        );
 
-    try {
-      const response = await fetch(
-        `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
-      );
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const data = await response.json();
+        const { hits, totalHits } = data;
+
+        const newImages = hits.filter(newImage =>
+          images.every(existingImage => existingImage.id !== newImage.id)
+        );
+
+        setImages(prevImages => [...prevImages, ...newImages]);
+        setLoadMore(page < Math.ceil(totalHits / perPage)); // Ustawienie stanu loadMore
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const data = await response.json();
-      const { hits, totalHits } = data;
-
-      const newImages = hits.filter(newImage =>
-        images.every(existingImage => existingImage.id !== newImage.id)
-      );
-
-      setImages(prevImages => [...prevImages, ...newImages]);
-      setLoadMore(page < Math.ceil(totalHits / perPage)); // Ustawienie stanu loadMore
-    } catch (error) {
-      console.error('Error fetching images:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchData();
+  }, [page, query, images]); // Dodanie images do tablicy zależności
 
   const handleSubmit = query => {
     setQuery(query);
