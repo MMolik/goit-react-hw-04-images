@@ -1,36 +1,30 @@
-import React, { Component } from 'react';
+// App.jsx
+import React, { useState, useEffect } from 'react';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import Button from './Button';
 import Modal from './Modal';
-import '../styles.css'
+import '../styles.css';
 
 const API_KEY = '42614686-f34bed80d5088dc8495810476';
 const perPage = 12;
 
-export class App extends Component {
-  state = {
-    images: [],
-    query: '',
-    page: 1,
-    loading: false,
-    showModal: false,
-    selectedImageUrl: '',
-    modalAlt: '',
-    loadMore: false,
-    searched: false,
-  };
+const App = () => {
+  const [images, setImages] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState('');
+  const [modalAlt, setModalAlt] = useState('');
+  const [loadMore, setLoadMore] = useState(false); // Dodanie stanu dla loadMore
 
-  componentDidUpdate(prevProps, prevState) {
-    const { page, query } = this.state;
-    if (page !== prevState.page || query !== prevState.query) {
-      this.fetchData();
-    }
-  }
+  useEffect(() => {
+    fetchData();
+  }, [page, query]);
 
-  fetchData = async () => {
-    const { page, query } = this.state;
-    this.setState({ loading: true });
+  const fetchData = async () => {
+    setLoading(true);
 
     try {
       const response = await fetch(
@@ -45,79 +39,65 @@ export class App extends Component {
       const { hits, totalHits } = data;
 
       const newImages = hits.filter(newImage =>
-        this.state.images.every(
-          existingImage => existingImage.id !== newImage.id
-        )
+        images.every(existingImage => existingImage.id !== newImage.id)
       );
 
-      this.setState(prevState => ({
-        images: [...prevState.images, ...newImages],
-        loadMore: page < Math.ceil(totalHits / perPage),
-      }));
+      setImages(prevImages => [...prevImages, ...newImages]);
+      setLoadMore(page < Math.ceil(totalHits / perPage)); // Ustawienie stanu loadMore
     } catch (error) {
       console.error('Error fetching images:', error);
     } finally {
-      this.setState({ loading: false });
+      setLoading(false);
     }
   };
 
-  handleSubmit = query => {
-    this.setState({ query, images: [], page: 1, searched: true }, () => {
-      this.fetchData();
-    });
+  const handleSubmit = query => {
+    setQuery(query);
+    setImages([]);
+    setPage(1);
   };
 
-  handleLoadMore = () => {
-    this.setState(
-      prevState => ({ page: prevState.page + 1 }),
-      () => {
-        this.fetchData();
-      }
-    );
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  handleImageClick = (imageUrl, imageAlt) => {
-    this.setState({
-      selectedImageUrl: imageUrl,
-      modalAlt: imageAlt,
-      showModal: true,
-    });
+  const handleImageClick = (imageUrl, imageAlt) => {
+    setSelectedImageUrl(imageUrl);
+    setModalAlt(imageAlt);
+    setShowModal(true);
   };
 
-  handleCloseModal = () => {
-    this.setState({ showModal: false });
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
-  render() {
-    const { images, loading, showModal, selectedImageUrl, modalAlt, loadMore } =
-      this.state;
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 40,
+        color: '#010101',
+      }}
+    >
+      <div>
+        <Searchbar onSubmit={handleSubmit} />
+        <ImageGallery images={images} onImageClick={handleImageClick} />
 
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: 40,
-          color: '#010101',
-        }}
-      >
-        <div>
-          <Searchbar onSubmit={this.handleSubmit} />
-          <ImageGallery images={images} onImageClick={this.handleImageClick} />
-
-          {loadMore && (
-            <Button onLoadMore={this.handleLoadMore} loading={loading} />
-          )}
-          {showModal && (
-            <Modal
-              imageUrl={selectedImageUrl}
-              alt={modalAlt || 'Image'}
-              onClose={this.handleCloseModal}
-            />
-          )}
-        </div>
+        {loadMore && (
+          <Button onLoadMore={handleLoadMore} loading={loading} />
+        )}
+        {showModal && (
+          <Modal
+            imageUrl={selectedImageUrl}
+            alt={modalAlt || 'Image'}
+            onClose={handleCloseModal}
+          />
+        )}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default App; // Zmiana na eksport domyślny
