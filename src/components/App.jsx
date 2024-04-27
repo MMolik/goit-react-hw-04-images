@@ -40,7 +40,7 @@ const App = () => {
         );
 
         setImages(prevImages => [...prevImages, ...newImages]);
-        setLoadMore(page < Math.ceil(totalHits / perPage));
+        setLoadMore(page < Math.ceil(totalHits / perPage)); 
       } catch (error) {
         console.error('Error fetching images:', error);
       } finally {
@@ -49,7 +49,7 @@ const App = () => {
     };
 
     fetchData();
-  }, [page, query]); 
+  }, [page, query, images]); // Dodanie images do tablicy zależności
 
   const handleSubmit = query => {
     setQuery(query);
