@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState, useEffect } from 'react';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
@@ -49,7 +48,7 @@ const App = () => {
     };
 
     fetchData();
-  }, [page, query, images]); // Dodanie images do tablicy zależności
+  }, [page, query]); // Usunięcie images z tablicy zależności
 
   const handleSubmit = query => {
     setQuery(query);
@@ -100,4 +99,4 @@ const App = () => {
   );
 };
 
-export default App; // Zmiana na eksport domyślny
+export default App; 
