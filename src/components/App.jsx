@@ -99,4 +99,4 @@ const App = () => {
   );
 };
 
-export default App; 
+export default App; // Zmiana na eksport domyślny
