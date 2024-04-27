@@ -1,3 +1,4 @@
+// App.jsx
 import React, { useState, useEffect } from 'react';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
@@ -16,7 +17,7 @@ const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState('');
   const [modalAlt, setModalAlt] = useState('');
-  const [loadMore, setLoadMore] = useState(false); // Dodanie stanu dla loadMore
+  const [loadMore, setLoadMore] = useState(false); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +40,7 @@ const App = () => {
         );
 
         setImages(prevImages => [...prevImages, ...newImages]);
-        setLoadMore(page < Math.ceil(totalHits / perPage)); // Ustawienie stanu loadMore
+        setLoadMore(page < Math.ceil(totalHits / perPage));
       } catch (error) {
         console.error('Error fetching images:', error);
       } finally {
@@ -48,7 +49,7 @@ const App = () => {
     };
 
     fetchData();
-  }, [page, query]); // Usunięcie images z tablicy zależności
+  }, [page, query]); 
 
   const handleSubmit = query => {
     setQuery(query);
@@ -99,4 +100,4 @@ const App = () => {
   );
 };
 
-export default App; // Zmiana na eksport domyślny
+export default App; 
